@@ -30,6 +30,8 @@ func createGameStateEntry(gs dem.GameState, roundStartTick int, bombPlantTick in
 	m["TEquipmentValue"] = gs.TeamTerrorists().CurrentEquipmentValue()
 	m["CTPlayersAlive"] = 0
 	m["TPlayersAlive"] = 0
+	m["CTPlayersTotHealth"] = 0
+	m["TPlayersTotHealth"] = 0
 	m["CTNumHelmets"] = 0
 	m["TNumHelmets"] = 0
 	m["CTNumArmors"] = 0
@@ -46,6 +48,7 @@ func createGameStateEntry(gs dem.GameState, roundStartTick int, bombPlantTick in
 	for _, participant := range gs.TeamTerrorists().Members() {
 		if participant.IsAlive() {
 			m["TPlayersAlive"] += 1
+			m["TPlayersTotHealth"] += participant.Health()
 			if participant.HasHelmet() {
 				m["TNumHelmets"] += 1
 				m["TNumArmors"] += 1
@@ -73,6 +76,7 @@ func createGameStateEntry(gs dem.GameState, roundStartTick int, bombPlantTick in
 	for _, participant := range gs.TeamCounterTerrorists().Members() {
 		if participant.IsAlive() {
 			m["CTPlayersAlive"] += 1
+			m["CTPlayersTotHealth"] += participant.Health()
 			if participant.HasDefuseKit() {
 				m["CTNumDefuseKits"] += 1
 			}
@@ -105,7 +109,7 @@ func createGameStateEntry(gs dem.GameState, roundStartTick int, bombPlantTick in
 
 func createDataFrame(rounds []map[int]map[string]int) *dataframe.DataFrame {
 	var columns []string
-	columns = append(columns, "RoundTime", "RoundTimeLeft", "IsBombPlanted", "CTEquipmentValue", "TEquipmentValue", "CTPlayersAlive", "TPlayersAlive", "CTNumHelmets", "TNumHelmets", "CTNumArmors", "TNumArmors", "CTNumDefuseKits",
+	columns = append(columns, "RoundTime", "RoundTimeLeft", "IsBombPlanted", "CTEquipmentValue", "TEquipmentValue", "CTPlayersAlive", "TPlayersAlive", "CTPlayersTotHealth", "TPlayersTotHealth", "CTNumHelmets", "TNumHelmets", "CTNumArmors", "TNumArmors", "CTNumDefuseKits",
 		"CTNumSmokes", "TNumSmokes", "CTNumMollies", "TNumMollies", "CTNumHEGrenades", "TNumHEGrenades", "CTNumFlashes", "TNumFlashes", "winner", "CTScore", "TScore")
 	var columnsAsSeries []dataframe.Series
 
@@ -118,29 +122,31 @@ func createDataFrame(rounds []map[int]map[string]int) *dataframe.DataFrame {
 		for roundTime, roundInfo := range round {
 			roundInfo["RoundTime"] = roundTime
 			df.Append(nil, map[string]interface{}{
-				"RoundTime":        roundInfo["RoundTime"],
-				"RoundTimeLeft":    roundInfo["RoundTimeLeft"],
-				"IsBombPlanted":    roundInfo["IsBombPlanted"],
-				"CTEquipmentValue": roundInfo["CTEquipmentValue"],
-				"TEquipmentValue":  roundInfo["TEquipmentValue"],
-				"CTPlayersAlive":   roundInfo["CTPlayersAlive"],
-				"TPlayersAlive":    roundInfo["TPlayersAlive"],
-				"CTNumHelmets":     roundInfo["CTNumHelmets"],
-				"TNumHelmets":      roundInfo["TNumHelmets"],
-				"CTNumArmors":      roundInfo["CTNumArmors"],
-				"TNumArmors":       roundInfo["TNumArmors"],
-				"CTNumDefuseKits":  roundInfo["CTNumDefuseKits"],
-				"CTNumSmokes":      roundInfo["CTNumSmokes"],
-				"TNumSmokes":       roundInfo["TNumSmokes"],
-				"CTNumMollies":     roundInfo["CTNumMollies"],
-				"TNumMollies":      roundInfo["TNumMollies"],
-				"CTNumHEGrenades":  roundInfo["CTNumHEGrenades"],
-				"TNumHEGrenades":   roundInfo["TNumHEGrenades"],
-				"CTNumFlashes":     roundInfo["CTNumFlashes"],
-				"TNumFlashes":      roundInfo["TNumFlashes"],
-				"winner":           roundInfo["winner"],
-				"CTScore":          roundInfo["CTScore"],
-				"TScore":           roundInfo["TScore"],
+				"RoundTime":          roundInfo["RoundTime"],
+				"RoundTimeLeft":      roundInfo["RoundTimeLeft"],
+				"IsBombPlanted":      roundInfo["IsBombPlanted"],
+				"CTEquipmentValue":   roundInfo["CTEquipmentValue"],
+				"TEquipmentValue":    roundInfo["TEquipmentValue"],
+				"CTPlayersAlive":     roundInfo["CTPlayersAlive"],
+				"TPlayersAlive":      roundInfo["TPlayersAlive"],
+				"CTPlayersTotHealth": roundInfo["CTPlayersTotHealth"],
+				"TPlayersTotHealth":  roundInfo["TPlayersTotHealth"],
+				"CTNumHelmets":       roundInfo["CTNumHelmets"],
+				"TNumHelmets":        roundInfo["TNumHelmets"],
+				"CTNumArmors":        roundInfo["CTNumArmors"],
+				"TNumArmors":         roundInfo["TNumArmors"],
+				"CTNumDefuseKits":    roundInfo["CTNumDefuseKits"],
+				"CTNumSmokes":        roundInfo["CTNumSmokes"],
+				"TNumSmokes":         roundInfo["TNumSmokes"],
+				"CTNumMollies":       roundInfo["CTNumMollies"],
+				"TNumMollies":        roundInfo["TNumMollies"],
+				"CTNumHEGrenades":    roundInfo["CTNumHEGrenades"],
+				"TNumHEGrenades":     roundInfo["TNumHEGrenades"],
+				"CTNumFlashes":       roundInfo["CTNumFlashes"],
+				"TNumFlashes":        roundInfo["TNumFlashes"],
+				"winner":             roundInfo["winner"],
+				"CTScore":            roundInfo["CTScore"],
+				"TScore":             roundInfo["TScore"],
 			})
 		}
 	}
