@@ -74,8 +74,8 @@ if __name__ == "__main__":
     tournament_link = 'https://www.hltv.org/results?event=6372'
     links = find_all_links(driver, tournament_link)
     links_seen = set()
-    if os.path.exists("links_seen.pkl"):
-        with open('links_seen.pkl', 'rb') as f:
+    if os.path.exists("matches_seen.pkl"):
+        with open('matches_seen.pkl', 'rb') as f:
             links_seen = pickle.load(f)
     
     # links = {'https://www.hltv.org/matches/2356134/copenhagen-flames-vs-bad-news-eagles-pgl-major-antwerp-2022'}
@@ -84,5 +84,6 @@ if __name__ == "__main__":
         download_demo(driver, link)
         run_go()
         links_seen.add(link)
-        pickle.dump(links_seen, open("links_seen.pkl", "wb"))
+        pickle.dump(links_seen, open("matches_seen.pkl", "wb"))
     print("Completed run for tournament:", tournament_link)
+    
