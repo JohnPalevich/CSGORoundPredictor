@@ -147,7 +147,7 @@ func createDataFrame(rounds []map[int]map[string]int) *dataframe.DataFrame {
 	return df
 }
 
-func parseDemo(f *os.File, err error, matchName string, mapName string) {
+func parseDemo(f *os.File, err error, eventName string, matchName string, mapName string) {
 	p := dem.NewParser(f)
 	defer p.Close()
 
@@ -230,9 +230,17 @@ func parseDemo(f *os.File, err error, matchName string, mapName string) {
 		{Key: "TScore", Desc: false},
 	}
 	df.Sort(ctx, sks)
-	fmt.Print(df.Table())
-	outputF, nerr := os.OpenFile("C:\\Users\\John\\developer\\CSGORoundPredictor\\data\\"+mapName+"\\"+matchName+".csv", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
+	//fmt.Print(df.Table())
+	// Save the CSV
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	mapPath := path + "/data/" + mapName
+	os.MkdirAll(mapPath, os.ModePerm)
+	outputF, nerr := os.OpenFile(mapPath+"/"+eventName+"-"+matchName+".csv", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if nerr != nil {
+		log.Println("FAILED OPENING")
 		panic(nerr)
 	}
 	defer outputF.Close()
@@ -240,20 +248,43 @@ func parseDemo(f *os.File, err error, matchName string, mapName string) {
 	export.ExportToCSV(ctx, outputF, df)
 }
 
-func main() {
-	fileName := os.Args[1]
-	initDemoParse(fileName)
-}
-
-func initDemoParse(demoLoc string) {
+func initDemoParse(eventName string, demoLoc string) {
 	f, err := os.Open(demoLoc)
 	if err != nil {
 		log.Panic("failed to open demo file: ", err)
 	}
 	defer f.Close()
-	s1 := strings.Split(demoLoc, "\\")
+	s1 := strings.Split(demoLoc, "/")
 	s2 := strings.Split(s1[len(s1)-1], "-")
 	matchName := strings.Split(s1[len(s1)-1], ".")[0]
 	mapName := strings.Split(s2[len(s2)-1], ".")[0]
-	parseDemo(f, err, matchName, mapName)
+	parseDemo(f, err, eventName, matchName, mapName)
+}
+
+func main() {
+	//fileName := os.Args[1]
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Starting...")
+	demoPath := path + "/demo"
+	matches, _ := os.ReadDir(demoPath)
+	for _, matchFile := range matches {
+		matchPath := demoPath + "/" + matchFile.Name()
+		if strings.HasSuffix(matchPath, ".dem") {
+			initDemoParse(matchFile.Name(), matchPath)
+			os.Remove(matchPath)
+		} else if strings.HasSuffix(matchPath, ".rar") {
+			os.Remove(matchPath)
+		} else {
+			maps, _ := os.ReadDir(matchPath)
+			for _, mapFile := range maps {
+				mapPath := matchPath + "/" + mapFile.Name()
+				log.Println(mapPath)
+				initDemoParse(matchFile.Name(), mapPath)
+			}
+			os.RemoveAll(matchPath)
+		}
+	}
 }
