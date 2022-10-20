@@ -65,7 +65,7 @@ def download_demo(driver, link):
     return
 
 def run_go():
-    output = subprocess.check_output("go run main.go", shell=True)
+    output = subprocess.check_output("go run parseDemo.go", shell=True)
     print(output)
 
 
