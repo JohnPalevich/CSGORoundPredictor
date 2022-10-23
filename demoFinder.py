@@ -25,7 +25,7 @@ def find_all_links(driver, link):
     driver.get(link)
     
     try:
-        WebDriverWait(driver, 5).until(lambda s: s.find_element(By.CLASS_NAME, "result-con").is_displayed())
+        WebDriverWait(driver, 10).until(lambda s: s.find_element(By.CLASS_NAME, "result-con").is_displayed())
     except TimeoutException:
         print("TimeoutException: Element not found")
         return None
@@ -65,25 +65,51 @@ def download_demo(driver, link):
     return
 
 def run_go():
-    output = subprocess.check_output("go run parseDemo.go", shell=True)
-    print(output)
+    subprocess.check_output("go run parseDemo.go", shell=True)
+    #print(output)
 
 
 if __name__ == "__main__":
     driver = configure_driver() 
-    tournament_link = 'https://www.hltv.org/results?event=6372'
-    links = find_all_links(driver, tournament_link)
-    links_seen = set()
-    if os.path.exists("matches_seen.pkl"):
-        with open('matches_seen.pkl', 'rb') as f:
-            links_seen = pickle.load(f)
+    tournament_links = {
+        "https://www.hltv.org/results?event=6141",
+        'https://www.hltv.org/results?event=6372',
+        'https://www.hltv.org/results?event=6140',
+        'https://www.hltv.org/results?event=6510',
+        'https://www.hltv.org/results?event=6345',
+        'https://www.hltv.org/results?event=6587',
+        'https://www.hltv.org/results?event=6477',
+        'https://www.hltv.org/results?event=6138',
+        'https://www.hltv.org/results?event=6137',
+        'https://www.hltv.org/results?event=6136',
+        'https://www.hltv.org/results?event=6334'
+    }
+    tournament_links_seen = set()
+    if os.path.exists("tournaments_seen.pkl"):
+        with open("tournaments_seen.pkl", 'rb') as f:
+            tournament_links_seen = pickle.load(f)
+    tournament_links = tournament_links-tournament_links_seen
     
-    # links = {'https://www.hltv.org/matches/2356134/copenhagen-flames-vs-bad-news-eagles-pgl-major-antwerp-2022'}
-    links = links - links_seen
-    for link in links:
-        download_demo(driver, link)
-        run_go()
-        links_seen.add(link)
-        pickle.dump(links_seen, open("matches_seen.pkl", "wb"))
-    print("Completed run for tournament:", tournament_link)
-    
+    for tournament_link in tournament_links:
+        links = find_all_links(driver, tournament_link)
+        links_seen = set()
+        if os.path.exists("matches_seen.pkl"):
+            with open('matches_seen.pkl', 'rb') as f:
+                links_seen = pickle.load(f)
+                print(len(links_seen))
+        
+        # links = {'https://www.hltv.org/matches/2356134/copenhagen-flames-vs-bad-news-eagles-pgl-major-antwerp-2022'}
+        links = links - links_seen
+        for link in links:
+            try: 
+                download_demo(driver, link)
+                run_go()
+            except Exception as e: 
+                print("Failed to download/run_go, error message was:", e)
+            finally:
+                links_seen.add(link)
+                pickle.dump(links_seen, open("matches_seen.pkl", "wb"))
+                print("Completed demo parsing for match:", link)
+        print("Completed run for tournament:", tournament_link)
+        tournament_links_seen.add(tournament_link)
+        pickle.dump(tournament_links_seen, open("tournaments_seen.pkl", "wb"))

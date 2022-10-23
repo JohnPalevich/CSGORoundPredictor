@@ -225,7 +225,8 @@ func parseDemo(f *os.File, err error, eventName string, matchName string, mapNam
 	// Parse to end
 	err = p.ParseToEnd()
 	if err != nil {
-		log.Panic("failed to parse demo: ", err)
+		log.Println("failed to parse demo: ", err)
+		return
 	}
 
 	df := createDataFrame(rounds)
@@ -288,6 +289,7 @@ func main() {
 			for _, mapFile := range maps {
 				mapPath := matchPath + "/" + mapFile.Name()
 				log.Println(mapPath)
+
 				initDemoParse(matchFile.Name(), mapPath)
 			}
 			os.RemoveAll(matchPath)
