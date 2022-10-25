@@ -61,12 +61,19 @@ def download_demo(driver, link):
     open(basePlace+match_name+'.rar', 'wb').write(r.content)
     os.chdir(basePlace)
     os.system("unrar x "+match_name+".rar")
+    for file in os.listdir(basePlace):
+        if file.endswith('.dem'):
+            parts=file.split('.')
+            match_name_parts = parts[0].split('-')
+            map_name = match_name_parts[-1]
+            count = len(match_name_parts)
+            tournName = '-'.join(match_name.split('-')[count-1:])
+            os.rename(basePlace+file, basePlace+parts[0]+'-'+tournName+'-'+map_name+'.'+parts[1])
     os.chdir(cwd)
     return
 
 def run_go():
     subprocess.check_output("go run parseDemo.go", shell=True)
-    #print(output)
 
 
 if __name__ == "__main__":
@@ -82,7 +89,21 @@ if __name__ == "__main__":
         'https://www.hltv.org/results?event=6138',
         'https://www.hltv.org/results?event=6137',
         'https://www.hltv.org/results?event=6136',
-        'https://www.hltv.org/results?event=6334'
+        'https://www.hltv.org/results?event=6334',
+        'https://www.hltv.org/results?event=5730',
+        'https://www.hltv.org/results?event=5608',
+        'https://www.hltv.org/results?event=5607',
+        'https://www.hltv.org/results?event=4866',
+        'https://www.hltv.org/results?event=5554',
+        'https://www.hltv.org/results?event=5469',
+        'https://www.hltv.org/results?event=5971',
+        'https://www.hltv.org/results?event=5604',
+        'https://www.hltv.org/results?event=5219',
+        'https://www.hltv.org/results?event=5728',
+        'https://www.hltv.org/results?event=5454',
+        'https://www.hltv.org/results?event=5553',
+        'https://www.hltv.org/results?event=5552',
+        'https://www.hltv.org/results?event=5206'
     }
     tournament_links_seen = set()
     if os.path.exists("tournaments_seen.pkl"):
@@ -98,7 +119,7 @@ if __name__ == "__main__":
                 links_seen = pickle.load(f)
                 print(len(links_seen))
         
-        # links = {'https://www.hltv.org/matches/2356134/copenhagen-flames-vs-bad-news-eagles-pgl-major-antwerp-2022'}
+        #links = {'https://www.hltv.org/matches/2356134/copenhagen-flames-vs-bad-news-eagles-pgl-major-antwerp-2022'}
         links = links - links_seen
         for link in links:
             try: 

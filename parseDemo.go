@@ -245,7 +245,7 @@ func parseDemo(f *os.File, err error, eventName string, matchName string, mapNam
 	}
 	mapPath := path + "/data/" + mapName
 	os.MkdirAll(mapPath, os.ModePerm)
-	outputF, nerr := os.OpenFile(mapPath+"/"+eventName+"-"+matchName+".csv", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
+	outputF, nerr := os.OpenFile(mapPath+"/"+matchName+".csv", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if nerr != nil {
 		log.Println("FAILED OPENING")
 		panic(nerr)
